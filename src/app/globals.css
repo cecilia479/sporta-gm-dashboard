@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #F5F7FA;
+  color: #0D2137;
+}
+
+@layer components {
+  .nav-tab {
+    @apply px-4 py-2 text-sm font-medium rounded-full border border-transparent text-slate-500 hover:text-navy hover:bg-white hover:border-border transition-all cursor-pointer whitespace-nowrap;
+  }
+  .nav-tab.active {
+    @apply bg-white border-border text-navy shadow-sm;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-border p-6;
+  }
+  .card-sm {
+    @apply bg-white rounded-xl border border-border p-4;
+  }
+  .section-header {
+    @apply text-xs font-semibold uppercase tracking-widest text-slate-400 mb-4;
+  }
+  .check-item {
+    @apply flex items-start gap-3 py-2.5 border-b border-slate-100 last:border-0;
+  }
+  .checkbox {
+    @apply w-5 h-5 rounded border-2 border-border flex-shrink-0 mt-0.5 cursor-pointer transition-all hover:border-accent;
+  }
+  .checkbox.checked {
+    @apply bg-accent border-accent;
+  }
+  .score-pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-green { @apply bg-accent-light text-accent; }
+  .badge-amber { @apply bg-amber-light text-amber; }
+  .badge-red { @apply bg-danger-light text-danger; }
+  .progress-bar {
+    @apply h-1.5 rounded-full bg-slate-100 overflow-hidden;
+  }
+  .progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+  }
+}
