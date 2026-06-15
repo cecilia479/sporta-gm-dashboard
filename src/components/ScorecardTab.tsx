@@ -1,37 +1,60 @@
 'use client'
 import { useState, useEffect } from 'react'
 
-const KPIS = [
-  { num: 1, kpi: 'Churn de membresías', unit: '%', porque: 'Predictor #1 de salud del negocio', direction: 'down', defaultThresholds: { green: 3, yellow: 5 } },
-  { num: 2, kpi: 'Nuevas membresías activas', unit: 'membresías', porque: 'Crecimiento neto de base', direction: 'up', defaultThresholds: { green: 30, yellow: 20 } },
-  { num: 3, kpi: 'NPS o CSAT', unit: 'puntos', porque: 'Indicador líder de churn futuro', direction: 'up', defaultThresholds: { green: 50, yellow: 30 } },
-  { num: 4, kpi: 'Utilización de espacios (%)', unit: '%', porque: 'Rentabilidad por metro cuadrado', direction: 'up', defaultThresholds: { green: 70, yellow: 50 } },
+interface KPI {
+  num: number
+  kpi: string
+  unit: string
+  porque: string
+  direction: 'up' | 'down'
+  defaultThresholds: { green: number; yellow: number }
+}
+
+interface WeekData {
+  [kpiNum: number]: number | ''
+}
+
+interface ThresholdData {
+  [kpiNum: number]: { green: number; yellow: number }
+}
+
+interface HistoryEntry {
+  weekKey: string
+  weekLabel: string
+  data: WeekData
+}
+
+const KPIS: KPI[] = [
+  { num: 1, kpi: 'Churn de membresias', unit: '%', porque: 'Predictor #1 de salud del negocio', direction: 'down', defaultThresholds: { green: 3, yellow: 5 } },
+  { num: 2, kpi: 'Nuevas membresias activas', unit: 'membresias', porque: 'Crecimiento neto de base', direction: 'up', defaultThresholds: { green: 30, yellow: 20 } },
+  { num: 3, kpi: 'NPS o CSAT', unit: 'puntos', porque: 'Indicador lider de churn futuro', direction: 'up', defaultThresholds: { green: 50, yellow: 30 } },
+  { num: 4, kpi: 'Utilizacion de espacios (%)', unit: '%', porque: 'Rentabilidad por metro cuadrado', direction: 'up', defaultThresholds: { green: 70, yellow: 50 } },
   { num: 5, kpi: 'Ingresos vs. presupuesto (%)', unit: '%', porque: 'Pulso financiero inmediato', direction: 'up', defaultThresholds: { green: 95, yellow: 85 } },
   { num: 6, kpi: 'EBITDA / margen operativo (%)', unit: '%', porque: 'Verdadera salud del negocio', direction: 'up', defaultThresholds: { green: 20, yellow: 10 } },
-  { num: 7, kpi: 'Tasa de conversión de visitas (%)', unit: '%', porque: 'Eficiencia del funnel', direction: 'up', defaultThresholds: { green: 30, yellow: 20 } },
-  { num: 8, kpi: 'Asistencia promedio por academia', unit: 'personas', porque: 'Engagement y riesgo de cancelación', direction: 'up', defaultThresholds: { green: 15, yellow: 10 } },
-  { num: 9, kpi: 'Cumplimiento de compromisos (%)', unit: '%', porque: 'Accountability en acción', direction: 'up', defaultThresholds: { green: 90, yellow: 70 } },
-  { num: 10, kpi: 'Ingresos eventos / alquileres', unit: 'Q', porque: 'Revenue de baja inversión marginal', direction: 'up', defaultThresholds: { green: 5000, yellow: 2000 } },
+  { num: 7, kpi: 'Tasa de conversion de visitas (%)', unit: '%', porque: 'Eficiencia del funnel', direction: 'up', defaultThresholds: { green: 30, yellow: 20 } },
+  { num: 8, kpi: 'Asistencia promedio por academia', unit: 'personas', porque: 'Engagement y riesgo de cancelacion', direction: 'up', defaultThresholds: { green: 15, yellow: 10 } },
+  { num: 9, kpi: 'Cumplimiento de compromisos (%)', unit: '%', porque: 'Accountability en accion', direction: 'up', defaultThresholds: { green: 90, yellow: 70 } },
+  { num: 10, kpi: 'Ingresos eventos / alquileres', unit: 'Q', porque: 'Revenue de baja inversion marginal', direction: 'up', defaultThresholds: { green: 5000, yellow: 2000 } },
 ]
 
 const STORAGE_KEY = 'scorecard-v2'
 const THRESHOLD_KEY = 'scorecard-thresholds-v2'
 
-function getWeekKey() {
+function getWeekKey(): string {
   const d = new Date()
   d.setHours(0, 0, 0, 0)
   d.setDate(d.getDate() - d.getDay() + 1)
   return d.toISOString().split('T')[0]
 }
 
-function getWeekLabel(weekKey: string) {
+function getWeekLabel(weekKey: string): string {
   const d = new Date(weekKey + 'T12:00:00')
   const end = new Date(d)
   end.setDate(d.getDate() + 6)
   return `${d.getDate()}/${d.getMonth() + 1} - ${end.getDate()}/${end.getMonth() + 1}`
 }
 
-function getStatus(kpi, value, thresholds) {
+function getStatus(kpi: KPI, value: number | '' | undefined, thresholds: ThresholdData): 'verde' | 'amarillo' | 'rojo' | 'sin dato' {
   if (value === '' || value === null || value === undefined) return 'sin dato'
   const t = thresholds[kpi.num] || kpi.defaultThresholds
   const v = Number(value)
@@ -53,7 +76,7 @@ const STATUS_STYLE = {
   'sin dato': { dot: 'bg-slate-200', badge: 'bg-slate-50 text-slate-400 border border-slate-200', text: 'Sin dato' },
 }
 
-function MiniChart({ history, kpiNum, kpi, thresholds }) {
+function MiniChart({ history, kpiNum, kpi, thresholds }: { history: HistoryEntry[], kpiNum: number, kpi: KPI, thresholds: ThresholdData }) {
   const entries = history.filter(h => h.data[kpiNum] !== '' && h.data[kpiNum] !== undefined)
   const points = entries.map(h => Number(h.data[kpiNum]))
   if (points.length < 2) return <p className="text-xs text-slate-400 italic py-4">Necesitas al menos 2 semanas con datos para ver la tendencia.</p>
@@ -62,8 +85,8 @@ function MiniChart({ history, kpiNum, kpi, thresholds }) {
   const max = Math.max(...points) * 1.15 || 1
   const W = 400, H = 80, PAD = 8
 
-  const x = (i) => PAD + (i / (points.length - 1)) * (W - PAD * 2)
-  const y = (v) => H - PAD - ((v - min) / ((max - min) || 1)) * (H - PAD * 2)
+  const x = (i: number) => PAD + (i / (points.length - 1)) * (W - PAD * 2)
+  const y = (v: number) => H - PAD - ((v - min) / ((max - min) || 1)) * (H - PAD * 2)
 
   const pathD = points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')
   const areaD = `${pathD} L ${x(points.length - 1).toFixed(1)} ${H} L ${PAD} ${H} Z`
@@ -99,12 +122,12 @@ function MiniChart({ history, kpiNum, kpi, thresholds }) {
 }
 
 export default function ScorecardTab() {
-  const [history, setHistory] = useState([])
-  const [thresholds, setThresholds] = useState({})
-  const [currentWeek, setCurrentWeek] = useState({})
+  const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [thresholds, setThresholds] = useState<ThresholdData>({})
+  const [currentWeek, setCurrentWeek] = useState<WeekData>({})
   const [loaded, setLoaded] = useState(false)
-  const [view, setView] = useState('entrada')
-  const [expandedKpi, setExpandedKpi] = useState(null)
+  const [view, setView] = useState<'entrada' | 'historial' | 'tendencias' | 'umbrales'>('entrada')
+  const [expandedKpi, setExpandedKpi] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
 
   const weekKey = getWeekKey()
@@ -113,36 +136,36 @@ export default function ScorecardTab() {
   useEffect(() => {
     const h = localStorage.getItem(STORAGE_KEY)
     const t = localStorage.getItem(THRESHOLD_KEY)
-    const parsed = h ? JSON.parse(h) : []
-    const parsedT = t ? JSON.parse(t) : {}
+    const parsed: HistoryEntry[] = h ? JSON.parse(h) : []
+    const parsedT: ThresholdData = t ? JSON.parse(t) : {}
     setHistory(parsed)
     setThresholds(parsedT)
     const thisWeek = parsed.find(e => e.weekKey === weekKey)
     setCurrentWeek(thisWeek?.data || {})
     setLoaded(true)
-  }, [])
+  }, [weekKey])
 
   const saveCurrentWeek = () => {
     setSaving(true)
     const existing = history.filter(e => e.weekKey !== weekKey)
-    const entry = { weekKey, weekLabel, data: currentWeek }
+    const entry: HistoryEntry = { weekKey, weekLabel, data: currentWeek }
     const next = [...existing, entry].sort((a, b) => a.weekKey.localeCompare(b.weekKey))
     setHistory(next)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
     setTimeout(() => setSaving(false), 800)
   }
 
-  const saveThresholds = (next) => {
+  const saveThresholds = (next: ThresholdData) => {
     setThresholds(next)
     localStorage.setItem(THRESHOLD_KEY, JSON.stringify(next))
   }
 
-  const updateValue = (kpiNum, val) => {
+  const updateValue = (kpiNum: number, val: string) => {
     setCurrentWeek(prev => ({ ...prev, [kpiNum]: val === '' ? '' : Number(val) }))
   }
 
-  const updateThreshold = (kpiNum, field, val) => {
-    const current = thresholds[kpiNum] || KPIS.find(k => k.num === kpiNum).defaultThresholds
+  const updateThreshold = (kpiNum: number, field: 'green' | 'yellow', val: string) => {
+    const current = thresholds[kpiNum] || KPIS.find(k => k.num === kpiNum)!.defaultThresholds
     saveThresholds({ ...thresholds, [kpiNum]: { ...current, [field]: Number(val) } })
   }
 
@@ -185,12 +208,12 @@ export default function ScorecardTab() {
       </div>
 
       <div className="flex gap-1.5 mb-6 border-b border-slate-100 pb-3 overflow-x-auto">
-        {[
+        {([
           { id: 'entrada', label: 'Ingresar datos' },
           { id: 'historial', label: 'Historial' },
           { id: 'tendencias', label: 'Tendencias' },
           { id: 'umbrales', label: 'Umbrales' },
-        ].map(t => (
+        ] as const).map(t => (
           <button key={t.id} onClick={() => setView(t.id)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap ${view === t.id ? 'bg-navy text-white border-navy' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}>
             {t.label}
@@ -208,15 +231,15 @@ export default function ScorecardTab() {
             const prevWeeks = history.filter(h => h.weekKey !== weekKey && h.data[kpi.num] !== '' && h.data[kpi.num] !== undefined)
             const prev = prevWeeks[prevWeeks.length - 1]
             const prevVal = prev?.data[kpi.num]
-            const trend = val !== '' && val !== undefined && prevVal !== undefined && prevVal !== ''
-              ? Number(val) > Number(prevVal) ? 'up' : Number(val) < Number(prevVal) ? 'down' : 'flat' : null
+            const trend = (val !== '' && val !== undefined && prevVal !== undefined && prevVal !== '')
+              ? Number(val) > Number(prevVal) ? 'up' : Number(val) < Number(prevVal) ? 'down' : 'flat'
+              : null
             const trendSymbol = trend === 'up' ? '↑' : trend === 'down' ? '↓' : trend === 'flat' ? '→' : null
             const trendColor = trend === 'up'
               ? (kpi.direction === 'up' ? 'text-emerald-600' : 'text-red-500')
               : trend === 'down'
               ? (kpi.direction === 'up' ? 'text-red-500' : 'text-emerald-600')
               : 'text-slate-400'
-
             const borderColor = status === 'verde' ? 'border-emerald-200' : status === 'amarillo' ? 'border-amber-200' : status === 'rojo' ? 'border-red-200' : 'border-slate-200'
 
             return (
@@ -231,7 +254,7 @@ export default function ScorecardTab() {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {trendSymbol && <span className={`text-sm font-bold ${trendColor}`}>{trendSymbol}</span>}
-                    <div className="flex items-center gap-1 border border-slate-200 rounded-lg overflow-hidden focus-within:border-navy transition-colors">
+                    <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden focus-within:border-navy transition-colors">
                       <input
                         type="number"
                         value={val === '' || val === undefined ? '' : String(val)}
