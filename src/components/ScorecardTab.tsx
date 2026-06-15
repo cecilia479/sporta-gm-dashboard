@@ -24,7 +24,7 @@ function getWeekKey() {
   return d.toISOString().split('T')[0]
 }
 
-function getWeekLabel(weekKey) {
+function getWeekLabel(weekKey: string) {
   const d = new Date(weekKey + 'T12:00:00')
   const end = new Date(d)
   end.setDate(d.getDate() + 6)
