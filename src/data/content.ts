@@ -109,13 +109,13 @@ export const DIMENSIONS = [
     motivo: 'Tienes orientación al cliente pero probablemente basada en intuición e interacciones casuales más que en datos sistemáticos. ¿Cuándo fue la última vez que entrevistaste formalmente a 10 miembros sobre su experiencia?',
     riesgo: 'En el fitness, el cliente no se queja — se va. El churn silencioso es letal. Sin un sistema de voz del cliente, eres reactiva en lugar de predictiva.',
     acciones: [
-      'Implementar encuesta NPS mensual con seguimiento a detractores en 48 horas',
+      'Implementar encuesta de retención mensual con seguimiento a miembros en riesgo en 48 horas',
       'Crear un "panel de miembros": 8-10 personas que se reúnen contigo cada 2 meses',
       'Revisar las razones de cancelación con análisis de causa raíz mensual',
     ],
     habitos: [
       'Cada martes: ronda de instalaciones hablando con 3-5 miembros sin agenda',
-      'Cada mes: revisar NPS y las razones textuales de detractores con el equipo',
+      'Cada mes: revisar tasa de retención y razones de cancelación con el equipo',
     ],
   },
   {
@@ -172,14 +172,14 @@ export const DIMENSIONS = [
 ]
 
 export const KPIS = [
-  { num: 1, kpi: 'Churn de membresías (mensual)', dimension: 'Retención', frecuencia: 'Semanal', porque: 'Predictor #1 de salud del negocio' },
+  { num: 1, kpi: 'Churn de membresías', dimension: 'Retención', frecuencia: 'Semanal', porque: 'Predictor #1 de salud del negocio' },
   { num: 2, kpi: 'Nuevas membresías activas', dimension: 'Adquisición', frecuencia: 'Semanal', porque: 'Crecimiento neto de base' },
-  { num: 3, kpi: 'NPS o CSAT del mes', dimension: 'Experiencia', frecuencia: 'Mensual', porque: 'Indicador líder de churn futuro' },
-  { num: 4, kpi: 'Utilización de espacios clave (%)', dimension: 'Operaciones', frecuencia: 'Semanal', porque: 'Rentabilidad por metro cuadrado' },
+  { num: 3, kpi: 'Tasa de retención de clientes', dimension: 'Experiencia', frecuencia: 'Mensual', porque: 'Indicador líder de churn futuro' },
+  { num: 4, kpi: 'Utilización de espacios clave (%)', dimension: 'Operaciones', frecuencia: 'Mensual', porque: 'Rentabilidad por metro cuadrado' },
   { num: 5, kpi: 'Ingresos totales vs. presupuesto', dimension: 'Finanzas', frecuencia: 'Semanal', porque: 'Pulso financiero inmediato' },
-  { num: 6, kpi: 'EBITDA o margen operativo', dimension: 'Rentabilidad', frecuencia: 'Mensual', porque: 'Verdadera salud del negocio' },
-  { num: 7, kpi: 'Tasa de conversión de visitas', dimension: 'Ventas', frecuencia: 'Semanal', porque: 'Eficiencia del funnel de adquisición' },
-  { num: 8, kpi: 'Asistencia promedio por academia', dimension: 'Academias', frecuencia: 'Semanal', porque: 'Engagement y riesgo de cancelación' },
+  { num: 6, kpi: 'EBITDA / Margen operativo', dimension: 'Rentabilidad', frecuencia: 'Mensual', porque: 'Verdadera salud del negocio' },
+  { num: 7, kpi: 'Tasa de conversión de prospectos', dimension: 'Ventas', frecuencia: 'Semanal', porque: 'Eficiencia del funnel de adquisición' },
+  { num: 8, kpi: 'Tasa de conversión de visitas', dimension: 'Ventas', frecuencia: 'Semanal', porque: 'Cierre efectivo en el punto de contacto' },
   { num: 9, kpi: 'Cumplimiento de compromisos del equipo', dimension: 'Cultura', frecuencia: 'Semanal', porque: 'Accountability en acción' },
   { num: 10, kpi: 'Ingresos por eventos / alquileres', dimension: 'Diversificación', frecuencia: 'Mensual', porque: 'Revenue de baja inversión marginal' },
 ]
@@ -188,46 +188,46 @@ export const ROUTINE = {
   Lunes: {
     subtitle: 'Ritmo y dirección',
     blocks: [
-      { time: '7:00–8:00', task: 'Revisión CEO Scorecard. Estado vs. semana anterior.', cat: 'Estrategia' },
-      { time: '8:00–9:00', task: 'Reunión semanal de liderazgo (60 min estructurados)', cat: 'Personas' },
-      { time: '9:00–11:00', task: 'Bloque estratégico protegido — sin interrupciones', cat: 'Estrategia' },
-      { time: '11:00–13:00', task: '1:1s con líderes directos', cat: 'Personas' },
-      { time: '14:00–17:00', task: 'Gestión operativa, aprobaciones, seguimientos', cat: 'Operaciones' },
+      { time: '8:00–9:00', task: 'Arranque estratégico — prioridades de la semana. Intocable.', cat: 'Estrategia' },
+      { time: '9:00–10:00', task: 'Revisión CEO Scorecard. Estado vs. semana anterior.', cat: 'Estrategia' },
+      { time: '10:00–11:00', task: '1:1 jefe de área (quincenal · rotativo)', cat: 'Personas' },
+      { time: '11:00–12:00', task: 'Proyectos estratégicos — galera, simuladores, etc.', cat: 'Estrategia' },
     ],
   },
   Martes: {
     subtitle: 'Clientes y mercado',
     blocks: [
-      { time: '7:00–8:00', task: 'Revisión de feedback de clientes y NPS', cat: 'Clientes' },
-      { time: '8:00–10:00', task: 'Ronda de instalaciones: observar sin agenda, hablar con miembros', cat: 'Clientes' },
-      { time: '10:00–13:00', task: 'Proyecto estratégico prioritario (galera, academias, precios)', cat: 'Estrategia' },
-      { time: '14:00–17:00', task: 'Operaciones + revisión de ventas y conversión', cat: 'Operaciones' },
+      { time: '8:00–9:00', task: 'Recorrido club — operación visible', cat: 'Operaciones' },
+      { time: '9:00–10:00', task: 'Disponible equipo — desbloqueos rápidos', cat: 'Personas' },
+      { time: '10:00–11:00', task: 'Gestión operativa — correos, decisiones, visitas', cat: 'Operaciones' },
+      { time: '11:00–12:00', task: 'Buffer — imprevistos del día', cat: 'Operaciones' },
     ],
   },
   Miércoles: {
-    subtitle: 'Personas y cultura',
+    subtitle: 'Proyectos y profundidad',
     blocks: [
-      { time: '7:00–9:00', task: 'Desarrollo personal: lectura, podcast, curso', cat: 'Estrategia' },
-      { time: '9:00–12:00', task: '1:1s de desarrollo con líderes (30 min c/u — foco en carrera, no tareas)', cat: 'Personas' },
-      { time: '13:00–16:00', task: 'Cultura: reconocimientos, conversaciones difíciles pendientes', cat: 'Personas' },
-      { time: '16:00–17:00', task: 'Revisión financiera semanal (P&L, flujo de caja)', cat: 'Operaciones' },
+      { time: '8:00–9:00', task: 'Trabajo profundo — sin reuniones', cat: 'Estrategia' },
+      { time: '9:00–10:00', task: 'Disponible equipo — desbloqueos rápidos', cat: 'Personas' },
+      { time: '10:00–11:00', task: '1:1 jefe de área (quincenal · rotativo)', cat: 'Personas' },
+      { time: '11:00–12:00', task: 'Proyectos estratégicos — análisis, decisiones', cat: 'Estrategia' },
     ],
   },
   Jueves: {
-    subtitle: 'Ejecución y proyectos',
+    subtitle: 'Ejecución y equipo',
     blocks: [
-      { time: '8:00–12:00', task: 'Revisión de avance en iniciativas estratégicas. Resolver bloqueos.', cat: 'Estrategia' },
-      { time: '13:00–16:00', task: 'Reuniones externas: alianzas, proveedores clave, benchmarks', cat: 'Estrategia' },
-      { time: '16:00–17:00', task: 'Puerta abierta estructurada: equipo puede escalar temas', cat: 'Personas' },
+      { time: '8:00–9:00', task: 'Recorrido club — operación visible', cat: 'Operaciones' },
+      { time: '9:00–10:00', task: 'Disponible equipo — desbloqueos rápidos', cat: 'Personas' },
+      { time: '10:00–11:00', task: 'Gestión operativa — visitas, proveedores', cat: 'Operaciones' },
+      { time: '11:00–12:00', task: 'Buffer — imprevistos del día', cat: 'Operaciones' },
     ],
   },
   Viernes: {
-    subtitle: 'Reflexión y planificación',
+    subtitle: 'Reflexión y cierre',
     blocks: [
-      { time: '7:00–8:30', task: 'Revisión de la semana: ¿qué funcionó? ¿qué no? ¿qué cambio?', cat: 'Reflexión' },
-      { time: '8:30–10:00', task: 'Planificación de próxima semana: prioridades y bloques de calendario', cat: 'Estrategia' },
-      { time: '10:00–13:00', task: 'Trabajo operativo y administrativo pendiente', cat: 'Operaciones' },
-      { time: '14:00–15:00', task: 'Reconocimiento público de logros del equipo', cat: 'Personas' },
+      { time: '8:00–9:00', task: 'Cierre semanal — revisión de pendientes', cat: 'Estrategia' },
+      { time: '9:00–10:00', task: 'Preparación reunión KPIs — revisión de métricas', cat: 'Estrategia' },
+      { time: '10:00–11:00', task: 'Reunión KPIs semanal — todos los jefes de área', cat: 'Personas' },
+      { time: '11:00–12:00', task: 'Buffer post-reunión — seguimientos y acuerdos', cat: 'Operaciones' },
     ],
   },
 }
@@ -249,7 +249,7 @@ export const CHECKLIST_ITEMS = {
     '¿El equipo tiene todo lo que necesita para ejecutar sin mí hoy?',
   ],
   'Cliente y operaciones': [
-    '¿Revisé algún feedback de clientes hoy (NPS, quejas, cancelaciones)?',
+    '¿Revisé algún feedback de clientes hoy (retención, quejas, cancelaciones)?',
     '¿Hay un cuello de botella operativo esperando mi intervención?',
     '¿Hablé con al menos un miembro o cliente hoy?',
   ],
