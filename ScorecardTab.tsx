@@ -1,4 +1,5 @@
-'use client'type NonNullStatus = 'verde' | 'amarillo' | 'rojo'
+'use client'
+type NonNullStatus = 'verde' | 'amarillo' | 'rojo'
 import { useState, useEffect } from 'react'
 import { KPIS } from '@/data/content'
 
