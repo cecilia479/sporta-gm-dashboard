@@ -1,4 +1,4 @@
-'use client'
+'use client'type NonNullStatus = 'verde' | 'amarillo' | 'rojo'
 import { useState, useEffect } from 'react'
 import { KPIS } from '@/data/content'
 
@@ -39,7 +39,7 @@ export default function ScorecardTab() {
   const amarillo = Object.values(statuses).filter(s => s === 'amarillo').length
   const rojo = Object.values(statuses).filter(s => s === 'rojo').length
 
-  const btnClass = (s: Status, current: Status) => {
+  const btnClass = (s: NonNullStatus, current: Status) => {
     const base = 'px-3 py-1 rounded-full text-xs font-medium border transition-all '
     if (s === 'verde') return base + (current === 'verde' ? 'bg-accent text-white border-accent' : 'border-border text-slate-500 hover:border-accent hover:text-accent')
     if (s === 'amarillo') return base + (current === 'amarillo' ? 'bg-amber text-white border-amber' : 'border-border text-slate-500 hover:border-amber hover:text-amber')
