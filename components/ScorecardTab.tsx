@@ -331,36 +331,169 @@ export default function ScorecardTab() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-navy mb-4">Tendencias — últimos 6 meses</p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr>
-                    <th className="text-left text-slate-500 font-medium py-2 pr-3 min-w-[140px]">KPI</th>
-                    {pastMonths().slice(0, 6).reverse().map(k => (
-                      <th key={k} className="text-center text-slate-400 font-normal py-2 px-1 min-w-[70px]">{monthLabel(k)}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeKpis.map(k => (
-                    <tr key={k.num} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-600 font-medium">{k.kpi}</td>
-                      {pastMonths().slice(0, 6).reverse().map(mkey => {
-                        const s = getStatus(mkey, k.num)
-                        const v = read(mkey + '-v')[String(k.num)] || ''
-                        return (
-                          <td key={mkey} className="text-center py-2 px-1">
-                            <div>{dot(s)}</div>
-                            {v && <div className="text-slate-400">{v}</div>}
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <p className="text-sm font-semibold text-navy mb-1">Tendencias — últimos 6 meses</p>
+            <p className="text-xs text-slate-400 mb-5">Los valores deben ser numéricos para graficar. El semáforo aparece en cada punto.</p>
+
+            {activeKpis.map(kpi => {
+              const months6 = pastMonths().slice(0, 6).reverse()
+              const dataPoints = months6.map(mkey => {
+                const raw = read(mkey + '-v')[String(kpi.num)] || ''
+                const num = parseFloat(raw.replace(',', '.').replace('%', '').trim())
+                const s = getStatus(mkey, kpi.num)
+                return { label: monthLabel(mkey), value: isNaN(num) ? null : num, status: s, raw }
+              })
+              const hasData = dataPoints.some(d => d.value !== null)
+              if (!hasData) return null
+
+              const values = dataPoints.filter(d => d.value !== null).map(d => d.value as number)
+              const minVal = Math.min(...values)
+              const maxVal = Math.max(...values)
+              const range = maxVal - minVal || 1
+
+              const W = 480; const H = 120; const PAD_L = 8; const PAD_R = 8; const PAD_T = 16; const PAD_B = 28
+              const chartW = W - PAD_L - PAD_R; const chartH = H - PAD_T - PAD_B
+              const n = months6.length
+
+              const pts = dataPoints.map((d, i) => ({
+                x: PAD_L + (i / (n - 1)) * chartW,
+                y: d.value !== null ? PAD_T + chartH - ((d.value - minVal) / range) * chartH : null,
+                ...d,
+              }))
+
+              // Build SVG polyline only for consecutive non-null points
+              const segments: string[] = []
+              let current: string[] = []
+              pts.forEach(p => {
+                if (p.y !== null) {
+                  current.push(`${p.x},${p.y}`)
+                } else {
+                  if (current.length > 1) segments.push(current.join(' '))
+                  current = []
+                }
+              })
+              if (current.length > 1) segments.push(current.join(' '))
+
+              const dotColor = (s: Status) => s === 'verde' ? '#22c55e' : s === 'amarillo' ? '#f59e0b' : s === 'rojo' ? '#ef4444' : '#94a3b8'
+              const u = umbrales[kpi.num]
+
+              // Threshold lines
+              const thresholdY = (val: string) => {
+                const v = parseFloat(val)
+                if (isNaN(v)) return null
+                const y = PAD_T + chartH - ((v - minVal) / range) * chartH
+                return y >= PAD_T && y <= PAD_T + chartH ? y : null
+              }
+              const verdeY = u ? thresholdY(u.verde) : null
+              const amarilloY = u ? thresholdY(u.amarillo) : null
+
+              const trend = values.length >= 2 ? values[values.length - 1] - values[0] : 0
+              const trendIcon = trend > 0 ? '↑' : trend < 0 ? '↓' : '→'
+              const trendColor = (() => {
+                if (trend === 0) return 'text-slate-400'
+                if (u?.mayorEsMejor) return trend > 0 ? 'text-accent' : 'text-danger'
+                return trend < 0 ? 'text-accent' : 'text-danger'
+              })()
+
+              return (
+                <div key={kpi.num} className="card mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="font-medium text-navy text-sm">{kpi.kpi}</p>
+                      <p className="text-xs text-slate-400">{kpi.dimension} · {u?.unidad}</p>
+                    </div>
+                    <span className={`text-lg font-bold ${trendColor}`}>{trendIcon}</span>
+                  </div>
+
+                  <div className="w-full overflow-x-auto">
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{minWidth: '280px', height: '120px'}}>
+                      {/* Grid lines */}
+                      {[0, 0.5, 1].map(t => (
+                        <line key={t}
+                          x1={PAD_L} x2={W - PAD_R}
+                          y1={PAD_T + t * chartH} y2={PAD_T + t * chartH}
+                          stroke="#f1f5f9" strokeWidth="1"
+                        />
+                      ))}
+
+                      {/* Threshold: verde */}
+                      {verdeY !== null && (
+                        <line x1={PAD_L} x2={W - PAD_R} y1={verdeY} y2={verdeY}
+                          stroke="#22c55e" strokeWidth="1" strokeDasharray="4 3" opacity="0.5"/>
+                      )}
+                      {/* Threshold: amarillo */}
+                      {amarilloY !== null && (
+                        <line x1={PAD_L} x2={W - PAD_R} y1={amarilloY} y2={amarilloY}
+                          stroke="#f59e0b" strokeWidth="1" strokeDasharray="4 3" opacity="0.5"/>
+                      )}
+
+                      {/* Lines */}
+                      {segments.map((seg, i) => (
+                        <polyline key={i} points={seg} fill="none" stroke="#1e3a5f" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+                      ))}
+
+                      {/* Dots + labels */}
+                      {pts.map((p, i) => (
+                        <g key={i}>
+                          {/* Month label */}
+                          <text x={p.x} y={H - 4} textAnchor="middle" fontSize="9" fill="#94a3b8">
+                            {p.label.split(' ')[0].slice(0, 3)}
+                          </text>
+                          {p.y !== null && (
+                            <>
+                              <circle cx={p.x} cy={p.y} r="5" fill={dotColor(p.status)} stroke="white" strokeWidth="2"/>
+                              <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="9" fill="#475569" fontWeight="500">
+                                {p.raw}
+                              </text>
+                            </>
+                          )}
+                        </g>
+                      ))}
+                    </svg>
+                  </div>
+                </div>
+              )
+            })}
+
+            {/* Fallback tabla dots para KPIs sin datos numéricos */}
+            {(() => {
+              const months6 = pastMonths().slice(0, 6).reverse()
+              const kpisWithOnlyDots = activeKpis.filter(kpi => {
+                return months6.every(mkey => {
+                  const raw = read(mkey + '-v')[String(kpi.num)] || ''
+                  const num = parseFloat(raw.replace(',', '.').replace('%', '').trim())
+                  return isNaN(num)
+                }) && months6.some(mkey => getStatus(mkey, kpi.num) !== null)
+              })
+              if (kpisWithOnlyDots.length === 0) return null
+              return (
+                <div className="mt-4 overflow-x-auto">
+                  <p className="text-xs text-slate-400 mb-2">KPIs con semáforo manual (sin valor numérico)</p>
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr>
+                        <th className="text-left text-slate-500 font-medium py-2 pr-3 min-w-[140px]">KPI</th>
+                        {months6.map(k => (
+                          <th key={k} className="text-center text-slate-400 font-normal py-2 px-1 min-w-[70px]">{monthLabel(k)}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {kpisWithOnlyDots.map(k => (
+                        <tr key={k.num} className="border-t border-slate-100">
+                          <td className="py-2 pr-3 text-slate-600 font-medium">{k.kpi}</td>
+                          {months6.map(mkey => {
+                            const s = getStatus(mkey, k.num)
+                            return (
+                              <td key={mkey} className="text-center py-2 px-1">{dot(s)}</td>
+                            )
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            })()}
           </div>
         </div>
       )}
