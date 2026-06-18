@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { KPIS } from '@/data/content'
 
 type Status = 'verde' | 'amarillo' | 'rojo' | null
-type ViewMode = 'semanal' | 'historial' | 'umbrales'
+type ViewMode = 'semanal' | 'historial' | 'umbrales' 
 
 const MONTHLY_KPIS = [3, 4, 6, 10]
 const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
