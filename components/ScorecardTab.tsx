@@ -178,10 +178,14 @@ export default function ScorecardTab() {
       setLocalNota(read(storKey + '-n')[String(kpiNum)] || '')
     }, [storKey, kpiNum])
 
+    // Solo actualiza estado local mientras escribes — sin re-render global
     const handleValorChange = (v: string) => {
       setLocalValor(v)
+    }
+
+    // Guarda a localStorage y actualiza semáforo al salir del campo
+    const handleValorBlur = (v: string) => {
       write(storKey + '-v', kpiNum, v)
-      // Clear manual override para que el auto-cálculo tome control
       const s = read(storKey + '-s')
       delete s[String(kpiNum)]
       localStorage.setItem(storKey + '-s', JSON.stringify(s))
@@ -218,11 +222,13 @@ export default function ScorecardTab() {
               placeholder={umbrales[kpiNum]?.unidad || 'Valor'}
               value={localValor}
               onChange={e => handleValorChange(e.target.value)}
+              onBlur={e => handleValorBlur(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
               onPaste={e => {
-                // Permitir paste limpio
                 const pasted = e.clipboardData.getData('text').trim()
                 e.preventDefault()
-                handleValorChange(pasted)
+                setLocalValor(pasted)
+                setTimeout(() => handleValorBlur(pasted), 0)
               }}
               className="w-28 text-sm border border-border rounded-lg px-2 py-1.5 text-center text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-1 focus:ring-navy"
             />
